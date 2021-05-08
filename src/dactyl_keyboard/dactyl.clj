@@ -12,20 +12,23 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
-(def ncols 5)
-(def trackball-enabled true)
-(def printed-hotswap? true) ; Whether you want the 3d printed version of the hotswap or you ordered some from krepublic
+(def nrows 5)
+(def ncols 6)
+(def trackball-enabled false)
+(def printed-hotswap? false) ; Whether you want the 3d printed version of the hotswap or you ordered some from krepublic
 
-(def α (/ π 8))                        ; curvature of the columns
-(def β (/ π 26))                        ; curvature of the rows
-(def centerrow (- nrows 2.5))             ; controls front-back tilt
+;(def α (/ π 8))                        ; curvature of the columns
+;(def β (/ π 26))                        ; curvature of the rows
+(def α (/ π 12))                        ; from 5x6.patch
+(def β (/ π 36))                        ; from 5x6.patch
+;(def centerrow (- nrows 2.5))             ; controls front-back tilt
+(def centerrow (- nrows 3))             ; from 5x6.patch
 (def centercol 2)                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 20))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ; (def column-style :fixed)
-(def pinky-15u false)
+(def pinky-15u true)
 
 (defn column-offset [column] (cond
                                (= column 2) [0 2.82 -4.5]
@@ -33,7 +36,9 @@
                                (>= column 4) [0 -16 -5.50]            ; original [0 -5.8 5.64]
                                :else [0 -5 1.5]))
 
-(def thumb-offsets [6 0 10])
+;(def thumb-offsets [6 0 10])
+(def thumb-offsets [6 -3 7])        ; from 5x6.patch
+
 
 (def keyboard-z-offset 23.5)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
@@ -56,8 +61,8 @@
 
 ; If you use Cherry MX or Gateron switches, this can be turned on.
 ; If you use other switches such as Kailh, you should set this as false
-(def create-side-nubs? false)
-(def create-top-nubs? false)
+(def create-side-nubs? true)
+(def create-top-nubs? true)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -397,13 +402,15 @@
   (union
     (thumb-1x-layout single-plate)
     (thumb-15x-layout single-plate)
-    ; (thumb-15x-layout larger-plate)
+     ;(thumb-15x-layout larger-plate)
     ))
 
-(def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  2) post-adj) 0] web-post))
+(def thumb-post-tr (translate [(- (/ (+ mount-width 8) 2) post-adj)  (- (/ mount-height  2) post-adj) -4] web-post))
+(def thumb-post-tr-key (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  2) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  2) post-adj) 0] web-post))
 (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-(def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -2) post-adj) 0] web-post))
+(def thumb-post-br (translate [(- (/ (+ mount-width 8) 2) post-adj)  (+ (/ mount-height -2) post-adj) -4] web-post))
+(def thumb-post-br-key (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -2) post-adj) 0] web-post))
 
 (def thumb-connectors
   (if trackball-enabled
@@ -483,6 +490,22 @@
       (key-place 3 lastrow web-post-tr)
       (key-place 4 cornerrow web-post-bl)))
     (union
+      (triangle-hulls
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-br)
+        (thumb-mr-place web-post-br))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-br)
+        (thumb-tr-place thumb-post-tr))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-tr-key)
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-tr))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-tr-key)
+        (thumb-tr-place thumb-post-tl)
+        (thumb-tr-place thumb-post-tr))
      (triangle-hulls    ; top two
       (thumb-tl-place web-post-tr)
       (thumb-tl-place web-post-br)
@@ -593,13 +616,13 @@
   (translate [10.5 0 0]
              (union
                ;; Index
-               (finger 47 22 20 10.5)
+               (finger 27 24 42 8)
                ;; Middle
-               (translate [25.5 0 0] (finger 53.5 29 22 9.2))
+               (translate [25.5 0 0] (finger 29 31 49 8.5))
                ;; Ring
-               (translate [(+ 20 25.5) 0 0] (finger 44 28.5 23 8.25))
+               (translate [(+ 20 25.5) 0 0] (finger 29 26 46 8))
                ;; Pinky
-               (translate [(+ 20 25.5 22) 0 0] (finger 30 22.5 20 8.25))))
+               (translate [(+ 20 25.5 22) 0 0] (finger 25 16 37 7.25))))
   )
 
 (def palm
@@ -1249,12 +1272,14 @@
                             (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
                             (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
                             ; front wall
+                            (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr) ;jason
                             (key-wall-brace 3 lastrow   0 -1 web-post-bl 3 lastrow 0.5 -1 web-post-br)
                             (key-wall-brace 3 lastrow 0.5 -1 web-post-br 4 cornerrow 0.5 -1 web-post-bl)
-
+                            (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br)) ;jason
+                            (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br)) ;jason
 ;                            (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
                             ; Right before the start of the thumb
-                            (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)))
+                            (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl))) ; jason ma
 (def case-walls
   (union
    right-wall
@@ -1647,9 +1672,10 @@
                 usb-jack
                 trrs-holder-hole
                 screw-insert-holes
-                (translate palm-hole-origin (palm-rest-hole-rotate palm-buckle-holes))))
+                ;(translate palm-hole-origin (palm-rest-hole-rotate palm-buckle-holes))
+                ))
    (if trackball-enabled (translate trackball-origin (dowell-angle raised-trackball)) nil)
-   hotswap-holes
+   ;hotswap-holes
    (translate [0 0 -20] (cube 350 350 40))))
 
 (def trackball-mount-translated-to-model (difference
