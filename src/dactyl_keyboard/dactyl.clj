@@ -14,7 +14,7 @@
 
 (def nrows 5)
 (def ncols 6)
-(def trackball-enabled false)
+(def trackball-enabled true)
 (def printed-hotswap? false) ; Whether you want the 3d printed version of the hotswap or you ordered some from krepublic
 
 ;(def α (/ π 8))                        ; curvature of the columns
@@ -413,6 +413,7 @@
 (def thumb-post-br-key (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -2) post-adj) 0] web-post))
 
 (def thumb-connectors
+  (union
   (if trackball-enabled
     (union
      ; top right vertical
@@ -490,22 +491,6 @@
       (key-place 3 lastrow web-post-tr)
       (key-place 4 cornerrow web-post-bl)))
     (union
-      (triangle-hulls
-        (thumb-tr-place thumb-post-br-key)
-        (thumb-tr-place thumb-post-br)
-        (thumb-mr-place web-post-br))
-      (triangle-hulls
-        (thumb-tr-place thumb-post-br-key)
-        (thumb-tr-place thumb-post-br)
-        (thumb-tr-place thumb-post-tr))
-      (triangle-hulls
-        (thumb-tr-place thumb-post-tr-key)
-        (thumb-tr-place thumb-post-br-key)
-        (thumb-tr-place thumb-post-tr))
-      (triangle-hulls
-        (thumb-tr-place thumb-post-tr-key)
-        (thumb-tr-place thumb-post-tl)
-        (thumb-tr-place thumb-post-tr))
      (triangle-hulls    ; top two
       (thumb-tl-place web-post-tr)
       (thumb-tl-place web-post-br)
@@ -575,6 +560,23 @@
       (key-place 3 lastrow web-post-br)
       (key-place 3 lastrow web-post-tr)
       (key-place 4 cornerrow web-post-bl)))
+    )
+      (triangle-hulls
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-br)
+        (thumb-mr-place web-post-br))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-br)
+        (thumb-tr-place thumb-post-tr))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-tr-key)
+        (thumb-tr-place thumb-post-br-key)
+        (thumb-tr-place thumb-post-tr))
+      (triangle-hulls
+        (thumb-tr-place thumb-post-tr-key)
+        (thumb-tr-place thumb-post-tl)
+        (thumb-tr-place thumb-post-tr))
     )
   )
 
@@ -1362,9 +1364,9 @@
              (screw-insert 0 lastrow   bottom-radius top-radius height (if trackball-enabled [-2 33 0] [0 15 0]))
              ;  (screw-insert lastcol lastrow  bottom-radius top-radius height [-5 13 0])
              ;  (screw-insert lastcol 0         bottom-radius top-radius height [-3 6 0])
-             (screw-insert lastcol lastrow  bottom-radius top-radius height [-3.5 17 0])
-             (screw-insert lastcol 0         bottom-radius top-radius height [-1 2 0])
-             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [1 -16 0] [1 -18.5 0]))))
+             (screw-insert lastcol lastrow  bottom-radius top-radius height [-0.5 12 0]) ;[-3.5 17 0])
+             (screw-insert lastcol 0         bottom-radius top-radius height [4 4 0]) ;[-1 2 0])
+             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [5 -16 0] [1 -18.5 0])))) ;[1 -16 0] [1 -18.5 0]))))
 
 ; Hole Depth Y: 4.4
 (def screw-insert-height 4)
