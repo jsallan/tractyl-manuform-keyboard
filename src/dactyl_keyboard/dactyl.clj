@@ -14,7 +14,7 @@
 
 (def nrows 5)
 (def ncols 6)
-(def trackball-enabled true)
+(def trackball-enabled false)
 (def printed-hotswap? false) ; Whether you want the 3d printed version of the hotswap or you ordered some from krepublic
 
 ;(def α (/ π 8))                        ; curvature of the columns
@@ -1366,7 +1366,7 @@
              ;  (screw-insert lastcol 0         bottom-radius top-radius height [-3 6 0])
              (screw-insert lastcol lastrow  bottom-radius top-radius height [-0.5 12 0]) ;[-3.5 17 0])
              (screw-insert lastcol 0         bottom-radius top-radius height [4 4 0]) ;[-1 2 0])
-             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [5 -16 0] [1 -18.5 0])))) ;[1 -16 0] [1 -18.5 0]))))
+             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [5 -16 0] [9 -17.5 0])))) ;[1 -16 0] [1 -18.5 0]))))
 
 ; Hole Depth Y: 4.4
 (def screw-insert-height 4)
