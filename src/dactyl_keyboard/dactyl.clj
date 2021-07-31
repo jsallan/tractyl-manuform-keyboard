@@ -14,8 +14,10 @@
 
 (def nrows 5)
 (def ncols 6)
-(def trackball-enabled false)
+(def trackball-enabled true)
 (def printed-hotswap? false) ; Whether you want the 3d printed version of the hotswap or you ordered some from krepublic
+(def use-hotswap? true) ; for new hotswap
+
 
 ;(def α (/ π 8))                        ; curvature of the columns
 ;(def β (/ π 26))                        ; curvature of the rows
@@ -24,23 +26,27 @@
 ;(def centerrow (- nrows 2.5))             ; controls front-back tilt
 (def centerrow (- nrows 3))             ; from 5x6.patch
 (def centercol 2)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (deg2rad 20))            ; or, change this for more precise tenting control
+(def tenting-angle (deg2rad 22))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ; (def column-style :fixed)
 (def pinky-15u true)
 
+(def col-tweaks 5)
+
 (defn column-offset [column] (cond
-                               (= column 2) [0 2.82 -4.5]
-                               (= column 3) [0 -1 -4]
-                               (>= column 4) [0 -16 -5.50]            ; original [0 -5.8 5.64]
+                               (= column 0) [0 0 0]
+                               (= column 1) [0 (+ -5 col-tweaks) 1.5]
+                               (= column 2) [0 (+ 2.82 col-tweaks) -4.5] ;[0 2.82 -4.5]
+                               (= column 3) [0 (+ -1 col-tweaks) -4] ;[0 -1 -4]
+                               (>= column 4) [0 -15 -2]     ;[0 -20 -5.50]        ; original [0 -5.8 5.64]
                                :else [0 -5 1.5]))
 
 ;(def thumb-offsets [6 0 10])
 (def thumb-offsets [6 -3 7])        ; from 5x6.patch
 
 
-(def keyboard-z-offset 23.5)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 27) ;23.5)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2
 (def extra-height 1.0)                  ; original= 0.5
@@ -62,6 +68,7 @@
 ; If you use Cherry MX or Gateron switches, this can be turned on.
 ; If you use other switches such as Kailh, you should set this as false
 (def create-side-nubs? true)
+(def create-side-nub? false) ; for new hotswap
 (def create-top-nubs? true)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -76,17 +83,145 @@
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
 
-(def keyswitch-height 14.2) ;; Was 14.1, then 14.25
-(def keyswitch-width 14.2)
+;;;;;;;;;;;;;;;
+;;; ORIGINAL TRACTYL CODE
 
-(def sa-profile-key-height 12.7)
+;; (def keyswitch-height 14.2) ;; Was 14.1, then 14.25
+;; (def keyswitch-width 14.2)
 
-(def plate-thickness 3)
-(def side-nub-thickness 4)
-(def retention-tab-thickness 1.5)
-(def retention-tab-hole-thickness (- plate-thickness retention-tab-thickness))
-(def mount-width (+ keyswitch-width 3))
-(def mount-height (+ keyswitch-height 3))
+;; (def sa-profile-key-height 12.7)
+
+;; (def plate-thickness 3)
+;; (def side-nub-thickness 4)
+;; (def retention-tab-thickness 1.5)
+;; (def retention-tab-hole-thickness (- plate-thickness retention-tab-thickness))
+;; (def mount-width (+ keyswitch-width 3))
+;; (def mount-height (+ keyswitch-height 3))
+
+;; (def single-plate
+;;   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+;;                       (translate [0
+;;                                   (+ (/ 1.5 2) (/ keyswitch-height 2))
+;;                                   (/ plate-thickness 2)]))
+;;         left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+;;                        (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+;;                                    0
+;;                                    (/ plate-thickness 2)]))
+;;         side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
+;;                       (rotate (/ π 2) [1 0 0])
+;;                       (translate [(+ (/ keyswitch-width 2)) 0 1])
+;;                       (hull (->> (cube 1.5 2.75 side-nub-thickness)
+;;                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+;;                                              0
+;;                                              (/ side-nub-thickness 2)])))
+;;                       (translate [0 0 (- plate-thickness side-nub-thickness)]))
+;;         plate-half (union top-wall left-wall (if create-side-nubs? (with-fn 100 side-nub)))
+;;         top-nub (->> (cube 5 5 retention-tab-hole-thickness)
+;;                      (translate [(+ (/ keyswitch-width 2)) 0 (/ retention-tab-hole-thickness 2)]))
+;;         top-nub-pair (union top-nub
+;;                             (->> top-nub
+;;                                  (mirror [1 0 0])
+;;                                  (mirror [0 1 0])))]
+;;        (difference
+;;          (union plate-half
+;;                 (->> plate-half
+;;                      (mirror [1 0 0])
+;;                      (mirror [0 1 0])))
+;;         (if create-top-nubs?
+;;           (->>
+;;            top-nub-pair
+;;            (rotate (/ π 2) [0 0 1])) nil))))
+
+;;;;;;;;;;;;;;;
+;;; FROM:
+
+(def keyswitch-height 14.4) ;; Was 14.1, then 14.25
+  (def keyswitch-width 14.4)
+  
+  (def sa-profile-key-height 12.7)
+  
+  (def plate-thickness 5)
+  (def mount-width (+ keyswitch-width 3))
+  (def mount-height (+ keyswitch-height 3))
+  
+
+;; (def single-plate
+;;   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+;;                       (translate [0
+;;                                   (+ (/ 1.5 2) (/ keyswitch-height 2))
+;;                                   (/ plate-thickness 2)]))
+;;         left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+;;                        (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+;;                                    0
+;;                                    (/ plate-thickness 2)]))
+;;         side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
+;;                       (rotate (/ π 2) [1 0 0])
+;;                       (translate [(+ (/ keyswitch-width 2)) 0 1])
+;;                       (hull (->> (cube 1.5 2.75 plate-thickness)
+;;                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+;;                                              0
+;;                                              (/ plate-thickness 2)]))))
+;;         plate-half (union top-wall
+;;                           left-wall
+;;                           (if create-side-nub? (with-fn 100 side-nub) ()))
+;;         swap-holder (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
+;;                          (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
+;;         main-axis-hole (->> (cylinder (/ 4.0 2) 10)
+;;                             (with-fn 12))
+;;         plus-hole (->> (cylinder (/ 2.9 2) 10)
+;;                        (with-fn 8)
+;;                        (translate [-3.81 2.54 0]))
+;;         minus-hole (->> (cylinder (/ 2.9 2) 10)
+;;                         (with-fn 8)
+;;                         (translate [2.54 5.08 0]))
+;;         friction-hole (->> (cylinder (/ 1.7 2) 10)
+;;                            (with-fn 8))
+;;         friction-hole-right (translate [5 0 0] friction-hole)
+;;         friction-hole-left (translate [-5 0 0] friction-hole)
+;;         hotswap-base-shape (->> (cube 14 5.80 1.8)
+;;                                 (translate [-1 4 -2.1]))
+;;         hotswap-base-hold-shape (->> (cube (/ 12 2) (- 6.2 4) 1.8)
+;;                                      (translate [(/ 12 4) (/ (- 6.2 4) 1) -2.1]))
+;;         hotswap-pad (cube 4.00 3.0 2)
+;;         hotswap-pad-plus (translate [(- 0 (+ (/ 12.9 2) (/ 2.55 2))) 2.54 -2.1]
+;;                                     hotswap-pad)
+;;         hotswap-pad-minus (translate [(+ (/ 10.9 2) (/ 2.55 2)) 5.08 -2.1]
+;;                                      hotswap-pad)
+;;         wire-track (cube 4 (+ keyswitch-height 3) 1.8)
+;;         column-wire-track (->> wire-track
+;;                                (translate [9.5 0 -2.4]))
+;;         diode-wire-track (->> (cube 2 10 1.8)
+;;                               (translate [-7 8 -2.1]))
+;;         hotswap-base (union
+;;                       (difference hotswap-base-shape
+;;                                   hotswap-base-hold-shape)
+;;                       hotswap-pad-plus
+;;                       hotswap-pad-minus)
+;;         diode-holder (->> (cube 2 4 1.8)
+;;                           (translate [-7 5 -2.1]))
+;;         hotswap-holder (difference swap-holder
+;;                                    main-axis-hole
+;;                                    plus-hole
+;;                                    (mirror [-1 0 0] plus-hole)
+;;                                    minus-hole
+;;                                    (mirror [-1 0 0] minus-hole)
+;;                                    friction-hole-left
+;;                                    friction-hole-right
+;;                                    hotswap-base
+;;                                    (mirror [-1 0 0] hotswap-base))]
+;;     (difference (union plate-half
+;;                        (->> plate-half
+;;                             (mirror [1 0 0])
+;;                             (mirror [0 1 0]))
+;;                        hotswap-holder)
+;;                 diode-holder
+;;                 diode-wire-track
+;;                 column-wire-track)))
+
+
+              
+;;;;;;;;;;;;;;;;;;
+;;;;; FROM: https://github.com/ibnuda/dactyl-keyboard/blob/coffin/src/dactyl_keyboard/dactyl.clj
 
 (def single-plate
   (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
@@ -100,27 +235,53 @@
         side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
                       (rotate (/ π 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 side-nub-thickness)
+                      (hull (->> (cube 1.5 2.75 plate-thickness)
                                  (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
                                              0
-                                             (/ side-nub-thickness 2)])))
-                      (translate [0 0 (- plate-thickness side-nub-thickness)]))
-        plate-half (union top-wall left-wall (if create-side-nubs? (with-fn 100 side-nub)))
-        top-nub (->> (cube 5 5 retention-tab-hole-thickness)
-                     (translate [(+ (/ keyswitch-width 2)) 0 (/ retention-tab-hole-thickness 2)]))
-        top-nub-pair (union top-nub
-                            (->> top-nub
-                                 (mirror [1 0 0])
-                                 (mirror [0 1 0])))]
-       (difference
-         (union plate-half
-                (->> plate-half
-                     (mirror [1 0 0])
-                     (mirror [0 1 0])))
-        (if create-top-nubs?
-          (->>
-           top-nub-pair
-           (rotate (/ π 2) [0 0 1])) nil))))
+                                             (/ plate-thickness 2)]))))
+        ; the hole's wall.
+        plate-half (union top-wall
+                          left-wall
+                          (if create-side-nub? (with-fn 100 side-nub) ()))
+        ; the bottom of the hole.
+        swap-holder (->> (cube (+ keyswitch-width 3) (/ (+ keyswitch-height 3) 2) 3)
+                         (translate [0 (/ (+ keyswitch-height 3) 4) -1.5]))
+        ; for the main axis
+        main-axis-hole (->> (cylinder (/ 4.0 2) 10)
+                            (with-fn 12))
+        plus-hole (->> (cylinder (/ 3.3 2) 10)
+                       (with-fn 8)
+                       (translate [-3.81 2.54 0]))
+        minus-hole (->> (cylinder (/ 3.3 2) 10)
+                        (with-fn 8)
+                        (translate [2.54 5.08 0]))
+        plus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
+                                (with-fn 8)
+                                (translate [3.81 2.54 0]))
+        minus-hole-mirrored (->> (cylinder (/ 3.3 2) 10)
+                                 (with-fn 8)
+                                 (translate [-2.54 5.08 0]))
+        friction-hole (->> (cylinder (/ 1.7 2) 10)
+                           (with-fn 8))
+        friction-hole-right (translate [5 0 0] friction-hole)
+        friction-hole-left (translate [-5 0 0] friction-hole)
+        hotswap-base-shape (->> (cube 19 6.2 3.5)
+                                (translate [0 4 -2.6]))
+        hotswap-holder (difference swap-holder
+                                   main-axis-hole
+                                   plus-hole
+                                   minus-hole
+                                   plus-hole-mirrored
+                                   minus-hole-mirrored
+                                   friction-hole-left
+                                   friction-hole-right
+                                   hotswap-base-shape)]
+    (difference (union plate-half
+                       (->> plate-half
+                            (mirror [1 0 0])
+                            (mirror [0 1 0]))
+                       (if use-hotswap? hotswap-holder ())))))
+
 
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
@@ -321,7 +482,7 @@
 ;;;;;;;;;;;;
 
 (def thumborigin
-  (map + (key-position 1 cornerrow [(+ (/ mount-width 2) 14) (+ (- (/ mount-height 3)) -1) 2])
+  (map + (key-position 1 cornerrow [(+ (/ mount-width 2) 14) (- (+ (- (/ mount-height 3)) -1) col-tweaks) 2])
        thumb-offsets))
 
 ;(def thumborigin
@@ -463,9 +624,11 @@
       (key-place 0 cornerrow web-post-br)
       (thumb-tr-place thumb-post-tl)
       (key-place 1 cornerrow web-post-bl)
-      (thumb-tr-place thumb-post-tr)
+      (thumb-tr-place thumb-post-tr-key)
       (key-place 1 cornerrow web-post-br)
-      (key-place 2 lastrow web-post-tl)
+      (thumb-tr-place thumb-post-tr)
+      (key-place 1 cornerrow web-post-br) ;jason
+      ;(key-place 2 lastrow web-post-tl)
       (key-place 2 lastrow web-post-bl)
       (thumb-tr-place thumb-post-tr)
       (key-place 2 lastrow web-post-bl)
@@ -478,6 +641,11 @@
       (key-place 3 lastrow web-post-tr)
       (key-place 3 cornerrow web-post-br)
       (key-place 4 cornerrow web-post-bl))
+    (triangle-hulls
+      (key-place 1 cornerrow web-post-br)
+      (key-place 2 lastrow web-post-tl)
+      (key-place 2 lastrow web-post-bl)
+      )
      (triangle-hulls
       (key-place 1 cornerrow web-post-br)
       (key-place 2 lastrow web-post-tl)
@@ -1093,7 +1261,7 @@
   )
 
 (def raised-trackball (translate [0 0 trackball-raise] (sphere (+ (/ trackball-width 2) 0.5))))
-(def trackball-origin (map + thumb-tip-origin [-8.5 10 -5]))
+(def trackball-origin (map + thumb-tip-origin [-11.5 7 -8])) ;[-8.5 10 -5]))
 
 ;;;;;;;;;;
 ;; Case ;;
@@ -1272,16 +1440,24 @@
                                                                     (left-key-place y        1 web-post)
                                                                     (left-key-place (dec y) -1 web-post))))
                             (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
+     ;                       (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
                             (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
-                            ; front wall
-                            (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr) ;jason
+                          ; front wall
+                          ; (key-wall-brace lastcol 0 0 1 web-post-tr (- ncols 1) 0 -1 0 web-post-tr)
+                            (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr) ; this one!!! this is the original
+            ;               (key-wall-brace (- ncols 2) 0 0 0 web-post-tl lastcol 0 2.5 1 web-post-tl)
                             (key-wall-brace 3 lastrow   0 -1 web-post-bl 3 lastrow 0.5 -1 web-post-br)
                             (key-wall-brace 3 lastrow 0.5 -1 web-post-br 4 cornerrow 0.5 -1 web-post-bl)
                             (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br)) ;jason
                             (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br)) ;jason
-;                            (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
-                            ; Right before the start of the thumb
-                            (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl))) ; jason ma
+                          ;(for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
+                           ; Right before the start of the thumb
+                            (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl) ;)) ; jason ma
+))
+
+(spit "things/non-thumb-walls.scad"
+      (write-scad non-thumb-walls))
+
 (def case-walls
   (union
    right-wall
@@ -1366,14 +1542,14 @@
              ;  (screw-insert lastcol 0         bottom-radius top-radius height [-3 6 0])
              (screw-insert lastcol lastrow  bottom-radius top-radius height [-0.5 12 0]) ;[-3.5 17 0])
              (screw-insert lastcol 0         bottom-radius top-radius height [4 4 0]) ;[-1 2 0])
-             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [5 -16 0] [9 -17.5 0])))) ;[1 -16 0] [1 -18.5 0]))))
+             (screw-insert 1 lastrow         bottom-radius top-radius height (if trackball-enabled [6 -16 0] [9 -17.5 0])))) ;[1 -16 0] [1 -18.5 0]))))
 
 ; Hole Depth Y: 4.4
 (def screw-insert-height 4)
 
 ; Hole Diameter C: 4.1-4.4
-(def screw-insert-bottom-radius (/ 4.0 2))
-(def screw-insert-top-radius (/ 3.9 2))
+(def screw-insert-bottom-radius (/ 3.9 2))
+(def screw-insert-top-radius(/ 3.75 2)) ;(/ 3.9 2))
 (def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius screw-insert-height))
 
 (spit "things/screw-test.scad"
@@ -1453,15 +1629,15 @@
     (union (hull (cut (key-wall-brace lastcol 0 0 1 tr lastcol 0 1 0 tr)) hull-with)
            (for [y (range 0 lastrow)] (hull (cut (key-wall-brace lastcol y 1 0 tr lastcol y 1 0 br)) hull-with))
            (for [y (range 1 lastrow)] (hull (cut (key-wall-brace lastcol (dec y) 1 0 br lastcol y 1 0 tr) ) hull-with))
-           (hull (cut (key-wall-brace lastcol cornerrow 0 -1 br lastcol cornerrow 1 0 br)) hull-with))))
+           (hull (cut (key-wall-brace lastcol cornerrow 0 -1 br lastcol cornerrow 1 0 br)) hull-with)))) ;jason mark this spot
 
 (def bottom-plate-thickness 2)
 (def plate-attempt (difference
                     (extrude-linear {:height bottom-plate-thickness}
                                     (union
                                      ; pro micro wall
-                                     (for [x (range 0 (- ncols 1))] (hull  (cut (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr)) (translate (key-position x lastrow [0 0 0]) (square (+ keyswitch-width 15) keyswitch-height))))
-                                     (for [x (range 1 ncols)] (hull (cut (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr)) (translate (key-position x 2 [0 0 0]) (square 1 1))))
+                                     (for [x (range 0 (- ncols 2))] (hull  (cut (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr)) (translate (key-position x lastrow [0 0 0]) (square (+ keyswitch-width 15) keyswitch-height))))
+                                     (for [x (range 1 ncols)] (hull (cut (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr)) (translate (key-position x 2 [0 0 0]) (square 1 1))))                                     
                                      (hull (cut back-pinky-wall) (translate (key-position lastcol 0 [0 0 0]) (square keyswitch-width keyswitch-height)))
                                      (hull (cut thumb-walls) (translate bl-thumb-loc (square 1 1)))
                                      right-wall-plate
@@ -1476,6 +1652,8 @@
                     (translate [0 0 -10] screw-insert-screw-holes)
                     ))
 
+(spit "things/plate-attempt.scad"
+      (write-scad plate-attempt))
 
 (spit "things/test.scad"
       (write-scad
@@ -1703,6 +1881,53 @@
 
 ;(spit "things/palm-rest.scad" (write-scad palm-rest))
 
+(def model-right-project 
+  (project 
+    (union
+    model-right
+    caps
+
+    )
+  )
+)
+
+(def negative-size 70)
+
+;(def negative-boundary (translate [(+ 32.7 (/ negative-size 2)) (+ 38 (/ negative-size 2)) 0](cube negative-size negative-size bottom-plate-thickness)))
+(def negative-boundary1 (translate [0 0 bottom-plate-thickness] (polygon [[33 39] [100 39] [100 50] [32.5 50]] ) ) )
+(def negative-boundary2 (translate [0 0 bottom-plate-thickness] (polygon [[33 39] [100 39] [100 50] [32.5 50]] ) ) )
+
+(def negative-boundary3 (translate [0 0 bottom-plate-thickness] (polygon [[30 30] [100 30] [100 100] [30 100]] ) ) )
+(def negative-boundary4 (translate [0 0 bottom-plate-thickness] (polygon [[0 -50] [100 -50] [100 -100] [0 -100]] ) ) )
+
+(def plate-negative
+  (intersection
+    (union
+      negative-boundary3
+      negative-boundary4
+      )
+    model-right-project
+  )
+
+  )
+
+;; (def plate-negative   (extrude-linear { :height (* bottom-plate-thickness 2) } 
+;;                         (translate [0 0 (* bottom-plate-thickness -1.1)]
+;;                         (difference
+;;                         (translate [0.01 0.01 0] negative-boundary1)
+;;                           (intersection
+;;                           model-right
+;;                           negative-boundary1
+;;                           )))))
+
+(spit "things/plate-negative.scad"
+  (write-scad
+    plate-negative
+    (color [220/255 163/255 163/255 0.2] negative-boundary3)
+    (color [220/255 163/255 163/255 0.2] negative-boundary4)
+    ))    
+
+
 (def right-plate (difference
                   (union
                    (if trackball-enabled trackball-mount-translated-to-model nil)
@@ -1716,7 +1941,9 @@
                   (translate [0 0 -22] (cube 350 350 40))
                   usb-jack
                   trrs-holder-hole
-                  model-right ; Just rm the whole model-right to make sure there's no obstruction
+                  model-right
+                  ;(translate [0 0 (/ bottom-plate-thickness -2)] model-right) ; Just rm the whole model-right to make sure there's no obstruction
+                  ;plate-negative
                   ))
 
 (spit "things/right-plate.scad"
